@@ -1,20 +1,20 @@
 #!/bin/bash
 
-# Check if a URL is provided as an argument
-if [ $# -ne 1 ]; then
+# Check if URL argument is provided
+if [ -z "$1" ]; then
     echo "Usage: $0 <URL>"
     exit 1
 fi
 
-url="$1"
+# Send request to the URL and store the response body in a temporary file
+response=$(mktemp)
+curl -s "$1" > "$response"
 
-# Send request and get response body size in bytes
-body_size=$(curl -sI "$url" | awk '/Content-Length/ {print $2}')
+# Get the size of the response body in bytes
+size=$(wc -c < "$response")
 
-# Check if Content-Length header exists in the response
-if [ -z "$body_size" ]; then
-    echo "10"
-    exit 1
-fi
+# Display the size of the response body
+echo "Size of the response body: $size bytes"
 
-echo "Body size: $body_size bytes"
+# Clean up temporary file
+rm "$response"
